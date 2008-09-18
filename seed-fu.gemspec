@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'seed-fu'
-  s.version = '1.1'
+  s.version = '1.11'
   s.date = '2008-09-17'
   
   s.summary = "Allows easier database seeding of tables."

@@ -41,7 +41,7 @@ module SeedFu
       @data.each do |k, v|
         record.send("#{k}=", v)
       end
-      record.save(enable_validation) || raise(RecordNotSaved)
+      record.save(enable_validation) || raise(ActiveRecord::RecordNotSaved, "Validation Failed. Use :validate => false in order to skip this:\n#{record.errors.inspect}")
       puts " - #{@model_class} #{condition_hash.inspect}"      
       record
     end
