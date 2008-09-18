@@ -13,4 +13,17 @@ namespace :db do
       puts "=" * 60 + "\n"
     }
   end
+  
+  desc "Reload seed data from db/fixtures for the current environment."
+  task :reseed => [:clear_seed, :seed]
+
+  desc "Clears seed data from the database for the current environment."
+  task :clear_seed => :environment do
+    Dir[File.join(RAILS_ROOT, 'db', 'fixtures', '*.rb')].sort.each do |fixture| 
+      table_name = File.split(fixture).last.split(".").first
+      puts "\n== [#{RAILS_ENV}] Clearing Table: #{table_name} "
+      ActiveRecord::Base.connection.execute("DELETE FROM #{table_name}")
+      puts "=" * 60 + "\n"
+    end
+  end
 end
