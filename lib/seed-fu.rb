@@ -3,11 +3,15 @@ module SeedFu
     def self.plant(model_class, *constraints, &block)
       constraints = [:id] if constraints.empty?
       seed = Seeder.new(model_class)
+
+      options = constraints.last if (constraints.last.is_a? Hash)
+      constraints.delete_at(*constraints.length-1) if (constraints.last.is_a? Hash)
+
       insert_only = constraints.last.is_a? TrueClass
       constraints.delete_at(*constraints.length-1) if (constraints.last.is_a? TrueClass or constraints.last.is_a? FalseClass)
       seed.set_constraints(*constraints)
       yield seed
-      seed.plant!(insert_only)
+      seed.plant!({:insert_only => insert_only}.merge(options||{}))
     end
 
     def initialize(model_class)
@@ -29,13 +33,15 @@ module SeedFu
       @data[name.to_sym] = value
     end
 
-    def plant! insert_only=false
+    def plant!(options)
+      insert_only = options[:insert_only].nil? ? false : options[:insert_only]
+      enable_validation = options[:validate].nil? ? true : options[:validate]
       record = get
       return if !record.new_record? and insert_only
       @data.each do |k, v|
         record.send("#{k}=", v)
       end
-      record.save!
+      record.save(enable_validation) || raise(RecordNotSaved)
       puts " - #{@model_class} #{condition_hash.inspect}"      
       record
     end
